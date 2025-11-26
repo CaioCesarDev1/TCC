@@ -1,38 +1,74 @@
-import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import { env } from "../config/env";
+/**
+ * Middleware de autenticação JWT
+ */
 
-export type AuthenticatedRequest = Request & {
-  user?: {
-    id: string;
-    cpf?: string;
-  };
-};
+import type { Request, Response, NextFunction } from 'express';
+import { authService } from '../services/auth/authService';
+import { AppError } from '../errors/AppError';
 
-export function authenticate(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  if (env.ENABLE_MOCK_AUTH) {
-    req.user = { id: "patient-123" };
-    return next();
-  }
-
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: "Token não informado" });
-  }
-
-  const [, token] = authHeader.split(" ");
-  if (!token) {
-    return res.status(401).json({ message: "Token inválido" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, env.JWT_SECRET) as { sub: string; cpf?: string };
-    req.user = { id: decoded.sub, cpf: decoded.cpf };
-    next();
-  } catch (error) {
-    console.error("Erro ao validar token", error);
-    return res.status(401).json({ message: "Token inválido ou expirado" });
+// Estende o tipo Request para incluir user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        sub: string;
+        fhirId: string;
+        cpf: string;
+      };
+    }
   }
 }
 
+/**
+ * Middleware que valida JWT e anexa dados do usuário em req.user
+ */
+export function authenticate(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
 
+  if (!authHeader) {
+    throw new AppError('Token não fornecido', 401);
+  }
+
+  const [bearer, token] = authHeader.split(' ');
+
+  if (bearer !== 'Bearer' || !token) {
+    throw new AppError('Formato de token inválido. Use: Bearer <token>', 401);
+  }
+
+  try {
+    const payload = authService.verifyToken(token);
+    req.user = payload;
+    return next();
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError('Token inválido ou expirado', 401);
+  }
+}
+
+/**
+ * Middleware opcional de autenticação (não bloqueia se não houver token)
+ */
+export function optionalAuthenticate(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return next();
+  }
+
+  const [bearer, token] = authHeader.split(' ');
+
+  if (bearer !== 'Bearer' || !token) {
+    return next();
+  }
+
+  try {
+    const payload = authService.verifyToken(token);
+    req.user = payload;
+  } catch {
+    // Ignora erros silenciosamente
+  }
+
+  return next();
+}

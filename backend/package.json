@@ -9,7 +9,12 @@
     "start": "node dist/server.js",
     "lint": "eslint src --ext ts --max-warnings=0",
     "migrate": "prisma migrate dev",
-    "generate": "prisma generate"
+    "migrate:deploy": "prisma migrate deploy",
+    "generate": "prisma generate",
+    "studio": "prisma studio",
+    "seed": "tsx prisma/seed.ts",
+    "db:reset": "prisma migrate reset --force",
+    "db:check": "node check-connection.js"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",
