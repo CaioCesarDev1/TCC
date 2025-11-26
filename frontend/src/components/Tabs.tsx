@@ -6,12 +6,15 @@ type TabsProps = {
   summary: PatientSummaryBundle;
 };
 
-type TabKey = "observations" | "encounters" | "allergies";
+type TabKey = "observations" | "encounters" | "allergies" | "conditions" | "procedures" | "medications";
 
 const TAB_LABELS: Record<TabKey, string> = {
   observations: "Exames de Laboratório",
   encounters: "Últimas Visitas",
-  allergies: "Alergias"
+  allergies: "Alergias",
+  conditions: "Condições",
+  procedures: "Procedimentos",
+  medications: "Medicamentos"
 };
 
 export function Tabs({ summary }: TabsProps) {
@@ -120,6 +123,147 @@ function renderTabContent(tab: TabKey, summary: PatientSummaryBundle) {
                 ) : null}
               </li>
             ))}
+          </ul>
+        </section>
+      );
+    case "conditions":
+      return (
+        <section>
+          <h2>Condições de Saúde</h2>
+          <ul>
+            {(summary.conditions || []).map((condition) => (
+              <li key={condition.id}>
+                <strong>
+                  {condition.code?.text ??
+                    condition.code?.coding?.[0]?.display ??
+                    "Condição não especificada"}
+                </strong>
+                {condition.clinicalStatus?.text ? (
+                  <>
+                    {" "}
+                    • Status: {condition.clinicalStatus.text}
+                  </>
+                ) : null}
+                {condition.severity?.text ? (
+                  <>
+                    {" "}
+                    • Gravidade: {condition.severity.text}
+                  </>
+                ) : null}
+                {condition.onsetDateTime ? (
+                  <>
+                    <br />
+                    <span className="meta">
+                      Início: {formatDate(condition.onsetDateTime)}
+                    </span>
+                  </>
+                ) : null}
+                {condition.note ? (
+                  <>
+                    <br />
+                    <span className="meta">{condition.note}</span>
+                  </>
+                ) : null}
+              </li>
+            ))}
+            {(!summary.conditions || summary.conditions.length === 0) && (
+              <li>Nenhuma condição registrada</li>
+            )}
+          </ul>
+        </section>
+      );
+    case "procedures":
+      return (
+        <section>
+          <h2>Procedimentos Realizados</h2>
+          <ul>
+            {(summary.procedures || []).map((procedure) => (
+              <li key={procedure.id}>
+                <strong>
+                  {procedure.code?.text ??
+                    procedure.code?.coding?.[0]?.display ??
+                    "Procedimento não especificado"}
+                </strong>
+                {procedure.status ? (
+                  <>
+                    {" "}
+                    • Status: {procedure.status}
+                  </>
+                ) : null}
+                {procedure.performedStart ? (
+                  <>
+                    <br />
+                    <span className="meta">
+                      Realizado em: {formatDate(procedure.performedStart)}
+                    </span>
+                  </>
+                ) : null}
+                {procedure.note ? (
+                  <>
+                    <br />
+                    <span className="meta">{procedure.note}</span>
+                  </>
+                ) : null}
+              </li>
+            ))}
+            {(!summary.procedures || summary.procedures.length === 0) && (
+              <li>Nenhum procedimento registrado</li>
+            )}
+          </ul>
+        </section>
+      );
+    case "medications":
+      return (
+        <section>
+          <h2>Medicamentos</h2>
+          <ul>
+            {(summary.medications || []).map((medication) => (
+              <li key={medication.id}>
+                <strong>
+                  {medication.medication?.text ??
+                    medication.medication?.coding?.[0]?.display ??
+                    "Medicamento não especificado"}
+                </strong>
+                {medication.status ? (
+                  <>
+                    {" "}
+                    • Status: {medication.status}
+                  </>
+                ) : null}
+                {medication.dosage ? (
+                  <>
+                    <br />
+                    <span className="meta">Dosagem: {medication.dosage}</span>
+                  </>
+                ) : null}
+                {medication.route ? (
+                  <>
+                    {" "}
+                    • Via: {medication.route}
+                  </>
+                ) : null}
+                {medication.effectiveStart ? (
+                  <>
+                    <br />
+                    <span className="meta">
+                      Início: {formatDate(medication.effectiveStart)}
+                      {medication.effectiveEnd
+                        ? ` - Fim: ${formatDate(medication.effectiveEnd)}`
+                        : ""}
+                    </span>
+                  </>
+                ) : null}
+                {medication.note ? (
+                  <>
+                    <br />
+                    <span className="meta">{medication.note}</span>
+                  </>
+                ) : null}
+              </li>
+            ))}
+            {(!summary.medications || summary.medications.length === 0) && (
+              <li>Nenhum medicamento registrado</li>
+            )}
           </ul>
         </section>
       );

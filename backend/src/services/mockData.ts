@@ -68,7 +68,10 @@ export const mockSummary: PatientSummaryBundle = {
       },
       criticality: "high"
     }
-  ]
+  ],
+  conditions: [],
+  procedures: [],
+  medications: []
 };
 
 

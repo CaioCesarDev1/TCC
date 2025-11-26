@@ -193,7 +193,10 @@ function getMockSummary(): PatientSummaryBundle {
           text: "Ativa"
         }
       }
-    ]
+    ],
+    conditions: [],
+    procedures: [],
+    medications: []
   };
 }
 

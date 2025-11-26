@@ -14,9 +14,11 @@ export function LoginPage() {
   }, [user, navigate]);
 
   return (
-    <main className="login-container">
-      <LoginForm />
-    </main>
+    <div className="govbr-page-wrapper">
+      <main className="govbr-login-page">
+        <LoginForm />
+      </main>
+    </div>
   );
 }
 

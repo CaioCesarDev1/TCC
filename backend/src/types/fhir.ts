@@ -88,11 +88,53 @@ export type AllergyIntoleranceResource = {
   lastOccurrence?: string;
 };
 
+export type ConditionResource = {
+  resourceType: "Condition";
+  id: string;
+  clinicalStatus?: CodeableConcept;
+  verificationStatus?: CodeableConcept;
+  category?: CodeableConcept[];
+  severity?: CodeableConcept;
+  code?: CodeableConcept;
+  onsetDateTime?: string;
+  abatementDateTime?: string;
+  recordedDate?: string;
+  note?: string;
+};
+
+export type ProcedureResource = {
+  resourceType: "Procedure";
+  id: string;
+  status?: string;
+  category?: CodeableConcept;
+  code?: CodeableConcept;
+  performedStart?: string;
+  performedEnd?: string;
+  note?: string;
+};
+
+export type MedicationStatementResource = {
+  resourceType: "MedicationStatement";
+  id: string;
+  status?: string;
+  category?: CodeableConcept;
+  medication?: CodeableConcept;
+  dosage?: string;
+  route?: string;
+  effectiveStart?: string;
+  effectiveEnd?: string;
+  taken?: string;
+  note?: string;
+};
+
 export type PatientSummaryBundle = {
   patient: PatientResource;
   encounters: EncounterResource[];
   observations: ObservationResource[];
   allergies: AllergyIntoleranceResource[];
+  conditions?: ConditionResource[];
+  procedures?: ProcedureResource[];
+  medications?: MedicationStatementResource[];
 };
 
 
